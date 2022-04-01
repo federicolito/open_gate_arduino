@@ -48,8 +48,7 @@ int Demora = 25000;
 #define pinCloseSwitch1 12
 #define pinCloseSwitch2 14
 
-bool reportWifi;
-bool reportMQTT;
+
 int timerRecMQTT = 30000;
 int timerRecWiFi = 300000;
 bool horainternet = false;
@@ -392,26 +391,9 @@ void myLoop() {
   dnsServer.processNextRequest();
   server.handleClient();
   MDNS.update();
-  if (reportWifi){
-    DynamicJsonDocument doc(256);
-    String mac = String (WiFi.macAddress()).substring(3, 17);
-    doc["t"] = "devices/" + mac;
-    doc["a"] = "getcw";
-    executeActions(doc, true) ;
-    reportWifi = false;
-  }
-  if (reportMQTT){
-    DynamicJsonDocument doc(256);
-    String mac = String (WiFi.macAddress()).substring(3, 17);
-    doc["t"] = "devices/" + mac;
-    doc["a"] = "getmqtt";
-    executeActions(doc, true) ;
-    reportMQTT = false;
-  }
+  
   if (!connectedToWiFi) {  ///verificarlo????d
-    if (!reportWifi){
-      reportWifi = true;
-    }
+    
     if ((millis() - timerRecWiFi) > 300000 ) {
       reconnectWiFi();
       timerRecWiFi = millis();
@@ -419,9 +401,7 @@ void myLoop() {
   }else{
     
     if (!client.connected() ) {
-      if (!reportMQTT){
-        reportMQTT = true;
-      }
+      
       //Serial.println("rec:" + String(millis() - timerRecMQTT));
       if (millis() - timerRecMQTT > 30000) {
         reconnectMQTT();
