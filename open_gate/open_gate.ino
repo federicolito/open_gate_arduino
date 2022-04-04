@@ -1,9 +1,9 @@
 /*
   Control porton automatico mediante app movil y mqtt
 */
-String ver = "1.12";
+String ver = "1.13.0";
 bool debug = false;
-bool gateType = false; //cambiar para un porton
+bool gateType = true; //cambiar para un porton
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -388,12 +388,12 @@ void myLoop() {
     connectedToWiFi = false;
   }
 
-  dnsServer.processNextRequest();
-  server.handleClient();
-  MDNS.update();
+  
   
   if (!connectedToWiFi) {  ///verificarlo????d
-    
+    dnsServer.processNextRequest();
+    server.handleClient();
+    MDNS.update();
     if ((millis() - timerRecWiFi) > 300000 ) {
       reconnectWiFi();
       timerRecWiFi = millis();
@@ -562,7 +562,7 @@ void guardarWiFi(String ssidTest, String passTest) {
 
 void reconnectWiFi() {
   
-  
+  Serial.println("");
   Serial.println("Reconectando WiFi");
   Serial.println(leerStr(0));
   

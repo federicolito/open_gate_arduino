@@ -6,7 +6,7 @@ const char* mqtt_server = "appdinamico3.com";
 const int mqtt_port = 1883;
 const char* mqtt_user = "psironi";
 const char* mqtt_pass = "Queiveephai6";
-const char* root_topic_subscribe = "control";
+const char* root_topic_subscribe = "control/devices/#";
 
 
 
@@ -38,7 +38,7 @@ void sendReply(String mensaje) {
     char rt[50];
     char conf[mensaje.length() + 1];
     mensaje.toCharArray(conf, mensaje.length() + 1);
-    ("controlporton/"  + String (WiFi.macAddress())).toCharArray(rt, 50);
+    ("controlgates/devices/"  + String (WiFi.macAddress()).substring(3, 17)).toCharArray(rt, 50);
     client.publish(rt, conf);
     client.loop();
   }

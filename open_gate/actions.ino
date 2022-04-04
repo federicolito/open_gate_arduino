@@ -89,6 +89,33 @@ void executeActions(DynamicJsonDocument doc, bool local) {
       doc["d"]["u"] = timeZone;
       serializeJson(doc, Serial);
     }
+    if (actions == "getcw") { // connect to a wifi
+      notFound = false;
+      String ssidScaned = "";
+      String rssiScaned = "";
+
+      if (WiFi.status() == WL_CONNECTED) {
+        ssidScaned = WiFi.SSID();
+        rssiScaned = String(WiFi.RSSI());
+      }
+
+      doc["d"]["s"] = ssidScaned;
+      doc["d"]["r"] = rssiScaned;
+
+      serializeJson(doc, Serial);
+    }
+    if (actions == "set") {
+        notFound = false;
+        grabarStr(100, doc["d"]["n"]);
+        grabarStr(150, doc["d"]["p"]);
+        serializeJson(doc, Serial);
+      }
+      if (actions == "get") {
+        notFound = false;
+        doc["d"]["n"] = leerStr(100);
+        doc["d"]["p"] = leerStr(150);
+        serializeJson(doc, Serial);
+      }
     if (local) {                          ////////                                                   only udp
       
       if (actions == "connectwifi") { // connect to a wifi
@@ -102,21 +129,6 @@ void executeActions(DynamicJsonDocument doc, bool local) {
           doc["status"] = "error";
           Serial.println("Incorrect ssid or password");
         }
-      }
-      if (actions == "getcw") { // connect to a wifi
-        notFound = false;
-        String ssidScaned = "";
-        String rssiScaned = "";
-
-        if (WiFi.status() == WL_CONNECTED) {
-          ssidScaned = WiFi.SSID();
-          rssiScaned = String(WiFi.RSSI());
-        }
-
-        doc["d"]["s"] = ssidScaned;
-        doc["d"]["r"] = rssiScaned;
-
-        serializeJson(doc, Serial);
       }
       if (actions == "disconnectw") { // connect to a wifi
         notFound = false;
@@ -169,18 +181,7 @@ void executeActions(DynamicJsonDocument doc, bool local) {
 
         serializeJson(doc, Serial);
       }
-      if (actions == "set") {
-        notFound = false;
-        grabarStr(100, doc["d"]["n"]);
-        grabarStr(150, doc["d"]["p"]);
-        serializeJson(doc, Serial);
-      }
-      if (actions == "get") {
-        notFound = false;
-        doc["d"]["n"] = leerStr(100);
-        doc["d"]["p"] = leerStr(150);
-        serializeJson(doc, Serial);
-      }
+      
       
     }
     if (notFound) {
@@ -201,10 +202,11 @@ void executeActions(DynamicJsonDocument doc, bool local) {
     } else {
       sendReply(result);
     }
-    if ( local) {
-      if (actions == "reset") {
+    if (actions == "reset") {
         ESP.reset();
       }
+    if ( local) {
+      
       if (actions == "disconnectw") {
         WiFi.disconnect();
       }
