@@ -3,7 +3,7 @@
 */
 String ver = "1.14.0";
 bool debug = false;
-bool gateType = true; //cambiar para un porton
+bool gateType = false; //cambiar para un porton
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
