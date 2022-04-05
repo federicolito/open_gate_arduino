@@ -1,8 +1,6 @@
-void executeActions(DynamicJsonDocument doc, bool local) {
+String executeActions(DynamicJsonDocument doc, bool local, bool sameNetwork) {
 
   /// pondremos el usuario y clave del mqtt en una posicion de la EEPROM y sera actualizada por la app cuando se configure el Wifi del name.
-
-
   String mac = String (WiFi.macAddress()).substring(3, 17);
   //  mensajes    {"t":"devices/mac(sin el primer grupo)","a":"getfc"}
   if ("devices/" + mac == doc["t"]) {
@@ -192,20 +190,21 @@ void executeActions(DynamicJsonDocument doc, bool local) {
     char json_string[256];
     serializeJson(doc, json_string);
     String result = String(json_string);
-    if ( local) {
-
-      Udp1.beginPacket(Udp1.remoteIP(), 8890);
-      char conf[result.length() + 1];
-      result.toCharArray(conf, result.length() + 1);
-      Udp1.write(conf);
-      Udp1.endPacket();
+    if (local ) {
+      if (!sameNetwork){
+        Udp1.beginPacket(Udp1.remoteIP(), 8890);
+        char conf[result.length() + 1];
+        result.toCharArray(conf, result.length() + 1);
+        Udp1.write(conf);
+        Udp1.endPacket();
+      }
     } else {
       sendReply(result);
     }
     if (actions == "reset") {
         ESP.reset();
       }
-    if ( local) {
+    if (local) {
       
       if (actions == "disconnectw") {
         WiFi.disconnect();
@@ -217,6 +216,7 @@ void executeActions(DynamicJsonDocument doc, bool local) {
         }
       }
     }
-
+     return result;
   }
+  return "error";
 }

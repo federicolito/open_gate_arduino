@@ -1,14 +1,13 @@
 
 void handleHttpSetup(){
   /* Setup web pages: root, wifi config pages, SO captive portal detectors and not found. */
-  server.on("/", handleRoot);
-  server.on("/wifi", handleWifi);
-  server.on("/generate_204", handleRoot);  // Android captive portal. Maybe not needed. Might be handled by notFound handler.
-  server.on("/fwlink", handleRoot);        // Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
+  server.on("/",HTTP_GET,  handleRoot);
+  server.on(F("/settings"), HTTP_GET, getSettings);
   server.onNotFound(handleNotFound);
   server.begin();  // Web server start
   Serial.println("HTTP server started");
 }
+
 /** Handle root or redirect to captive portal */
 void handleRoot() {
   if (captivePortal()) {  // If caprive portal redirect instead of displaying the page.
@@ -19,17 +18,13 @@ void handleRoot() {
   server.sendHeader("Expires", "-1");
 
   String Page;
-  Page += F("<!DOCTYPE html><html lang='en'><head>"
+  Page += "<!DOCTYPE html><html lang='en'><head>"
             "<meta name='viewport' content='width=device-width'>"
-            "<title>CaptivePortal</title></head><body>"
-            "<h1>Configuration of the device network.</h1>");
-  if (server.client().localIP() == apIP) {
-    Page += String(F("<p>You are connected through the soft AP: ")) + ssid_AP + F("</p>");
-  } else {
-    Page += String(F("<p>You are connected through the wifi network: ")) + leerStr(0) + F("</p>");
-  }
-  Page += F("<p>You may want to <a href='/wifi'>config the wifi connection</a>.</p>"
-            "</body></html>");
+            "<title>Go Back to the app Open Gate</title></head><body>"
+            "<h1></h1>"
+            "<p>To continue go back to the app Open Gate to finish the configuration</p>"
+            "<a href='https://federicosironi.page.link/devices'>Open Gate</a>"
+            "</body></html>";
 
   server.send(200, "text/html", Page);
 }
@@ -44,60 +39,22 @@ boolean captivePortal() {
     return true;
   }
   return false;
+
 }
+void getSettings() {
+
+    String message = server.arg("message");
+    DynamicJsonDocument doc(500);
+    char json[message.length() + 1];
+    message.toCharArray(json, message.length() + 1);
+    deserializeJson(doc, json);
+    String response = executeActions(doc, true, true);
+    server.send(200, "text/json", response);
+}
+
+//server.arg("n")
 
 /** Wifi config page handler */
-void handleWifi() {
-  connectToWiFi(server.arg("n"), server.arg("p"));
-  server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  server.sendHeader("Pragma", "no-cache");
-  server.sendHeader("Expires", "-1");
-
-  String Page;
-  Page += F("<!DOCTYPE html><html lang='en'><head>"
-            "<meta name='viewport' content='width=device-width'>"
-            "<title>CaptivePortal</title></head><body>"
-            "<h1>Wifi config</h1>");
-  if (server.client().localIP() == apIP) {
-    Page += String(F("<p>You are connected through the soft AP: ")) + ssid_AP + F("</p>");
-  } else {
-    Page += String(F("<p>You are connected through the wifi network: ")) + leerStr(0) + F("</p>");
-  }
-  Page += String(F("\r\n<br />"
-                   "<table><tr><th align='left'>SoftAP config</th></tr>"
-                   "<tr><td>SSID "))
-          + String(ssid_AP) + F("</td></tr>"
-                                    "<tr><td>IP ")
-          + toStringIp(WiFi.softAPIP()) + F("</td></tr>"
-                                            "</table>"
-                                            "\r\n<br />"
-                                            "<table><tr><th align='left'>WLAN config</th></tr>"
-                                            "<tr><td>SSID ")
-          + String(leerStr(0)) + F("</td></tr>"
-                             "<tr><td>IP ")
-          + toStringIp(WiFi.localIP()) + F("</td></tr>"
-                                           "</table>"
-                                           "\r\n<br />"
-                                           "<table><tr><th align='left'>WLAN list (refresh if any missing)</th></tr>");
-  Serial.println("scan start");
-  int n = WiFi.scanNetworks();
-  Serial.println("scan done");
-  if (n > 0) {
-    for (int i = 0; i < n; i++) { Page += String(F("\r\n<tr><td>SSID ")) + WiFi.SSID(i) + ((WiFi.encryptionType(i) == ENC_TYPE_NONE) ? F(" ") : F(" *")) + F("</td></tr>"); }
-  } else {
-    Page += F("<tr><td>No Networks found</td></tr>");
-  }
-  Page += F("</table>"
-            "\r\n<br /><form method='POST' ><h4>Connect to network:</h4>"
-            "<input type='text' placeholder='network' name='n'/>"
-            "<br /><input type='password' placeholder='password' name='p'/>"
-            "<br /><input type='submit' value='Connect/Disconnect'/></form>"
-            "<p>You may want to <a href='/'>return to the home page</a>.</p>"
-            "</body></html>");
-  server.send(200, "text/html", Page);
-  server.client().stop();  // Stop is needed because we sent no content length
-  
-}
 
 
 

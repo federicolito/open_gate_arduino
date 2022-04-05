@@ -1,7 +1,7 @@
 /*
   Control porton automatico mediante app movil y mqtt
 */
-String ver = "1.13.0";
+String ver = "1.14.0";
 bool debug = false;
 bool gateType = true; //cambiar para un porton
 
@@ -388,12 +388,12 @@ void myLoop() {
     connectedToWiFi = false;
   }
 
-  
+  dnsServer.processNextRequest();
+  server.handleClient();
+  MDNS.update();
   
   if (!connectedToWiFi) {  ///verificarlo????d
-    dnsServer.processNextRequest();
-    server.handleClient();
-    MDNS.update();
+    
     if ((millis() - timerRecWiFi) > 300000 ) {
       reconnectWiFi();
       timerRecWiFi = millis();
@@ -519,8 +519,8 @@ void reportStateOfGate(){
   String mac = String (WiFi.macAddress()).substring(3, 17);
   doc["t"] = "devices/" + mac;
   doc["a"] = "getfc";
-  executeActions(doc, true) ;
-  executeActions(doc, false) ;
+  executeActions(doc, true,false) ;
+  executeActions(doc, false,false) ;
 }
 
 //----------------Función para conectarse a un nuevo wifi-------------------
