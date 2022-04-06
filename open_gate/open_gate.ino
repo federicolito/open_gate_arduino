@@ -44,6 +44,7 @@ int segundos = millis();
 int Demora = 25000;
 
 #define Control1 5
+#define Control0 0
 #define Control2 4
 #define pinCloseSwitch1 12
 #define pinCloseSwitch2 14
@@ -126,6 +127,9 @@ void setup() {
   }
   pinMode(Control1, OUTPUT);
   digitalWrite(Control1, LOW);
+  pinMode(Control0, OUTPUT);
+  digitalWrite(Control0, LOW);
+  
   pinMode(Control2, OUTPUT);
   digitalWrite(Control2, LOW);
   pinMode(LED_BUILTIN, OUTPUT);
@@ -422,9 +426,11 @@ void myLoop() {
   }
   if (millis() - timerp1 < 500) {
     digitalWrite(Control1, HIGH);
+    digitalWrite(Control0, HIGH);
   }
   else {
     digitalWrite(Control1, LOW);
+    digitalWrite(Control0, LOW);
   }
   if (millis() - timerp2 < 500) {
     digitalWrite(Control2, HIGH);
