@@ -1,7 +1,7 @@
 /*
   Control porton automatico mediante app movil y mqtt
 */
-String ver = "1.14.1";
+String ver = "1.14.2";
 bool debug = false;
 bool gateType = false; //cambiar para un porton
 
