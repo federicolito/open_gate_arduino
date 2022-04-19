@@ -152,6 +152,9 @@ void setup() {
   Serial.print("Contraseña obtenida del eprom ");
   Serial.println(leerStr(150));
   Serial.println("");
+  
+  //grabarStr(0, "Swirless1 2.4GHz");
+  //grabarStr(50, "MartinFierro2013");
 
   generateSoftAP();
   reconnectWiFi();
@@ -179,8 +182,9 @@ void setup() {
 
   horas = hour();
   minutos = minute();
-
+  delay(2000);
   bool locked1 =  digitalRead(pinCloseSwitch1);
+  //Serial.println("Puerta abierta");
   bool locked2 =  digitalRead(pinCloseSwitch2);
 
   /* Setup the DNS server redirecting all the domains to the apIP */
@@ -350,6 +354,8 @@ void myLoop() {
     locked1 = digitalRead(pinCloseSwitch1);
     if (millis()-timerChange1 > 500) {
       reportStateOfGate();
+      Serial.println("");
+      Serial.println("cambio de estado");
     }
     timerChange1=millis();
   }
@@ -360,7 +366,7 @@ void myLoop() {
     }
     timerChange2=millis();
   }
-  
+
   ledStatus();
   
   if (horainternet) {
@@ -382,12 +388,12 @@ void myLoop() {
       Serial.println(String (horas) + ":" + String(minutos));
     }
   }
+  
   int packetSize = Udp1.parsePacket();
   udpListen(packetSize);
   
   if (WiFi.status() == WL_CONNECTED) {   ///
     connectedToWiFi = true;
-    
   } else {
     connectedToWiFi = false;
   }
@@ -397,15 +403,12 @@ void myLoop() {
   MDNS.update();
   
   if (!connectedToWiFi) {  ///verificarlo????d
-    
     if ((millis() - timerRecWiFi) > 300000 ) {
       reconnectWiFi();
       timerRecWiFi = millis();
     }
   }else{
-    
     if (!client.connected() ) {
-      
       //Serial.println("rec:" + String(millis() - timerRecMQTT));
       if (millis() - timerRecMQTT > 30000) {
         reconnectMQTT();
@@ -413,7 +416,6 @@ void myLoop() {
       }
     }else{
       client.loop();
-      
     }
   }
 
@@ -424,7 +426,7 @@ void myLoop() {
   else {
     digitalWrite(LED_BUILTIN, HIGH);
   }
-  if (millis() - timerp1 < 500) {
+  if (millis() - timerp1 < 1600) {
     digitalWrite(Control1, HIGH);
     digitalWrite(Control0, HIGH);
   }
@@ -432,7 +434,7 @@ void myLoop() {
     digitalWrite(Control1, LOW);
     digitalWrite(Control0, LOW);
   }
-  if (millis() - timerp2 < 500) {
+  if (millis() - timerp2 < 1600) {
     digitalWrite(Control2, HIGH);
   }
   else {
@@ -449,18 +451,22 @@ void myLoop() {
     if (status1 == 0) {
       timerGate1 = millis();
       status1 = 1;
+      Serial.println("Entro en Status 1");
     }
     if (status1 == 1 and (millis() - timerGate1 > Demora)) {
+      Serial.println("Entro en Status 2");
       status1 = 2;
       timerp1 = millis();
       timerGate1 = millis();
     }
     if (status1 == 2 and (millis() - timerGate1 > Demora)) {
       status1 = 1;
+      Serial.println("Volvio a status 1");
     }
   }
   else {
     status1 = 0;
+    Serial.println("Entro en Status 0");
   }
   if (digitalRead(pinCloseSwitch2)) {
     if (status2 == 0) {
@@ -534,6 +540,7 @@ void connectToWiFi(String ssidTest, String passTest) {
   ssidTest.trim();
   passTest.trim();
   
+  
   WiFi.begin(ssidTest, passTest);
   Serial.println("");
   Serial.println(ssidTest);
@@ -591,6 +598,10 @@ void reconnectWiFi() {
     }
   } else {
     Serial.println("");
+    Serial.println(leerStr(0));
+    Serial.println(leerStr(50));
+    
+    
     Serial.println("incorect SSID, Password, or out of range");
   }
   //generateSoftAP();
