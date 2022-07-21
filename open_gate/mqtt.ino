@@ -1,11 +1,11 @@
 //**************************************
 //*********** MQTT CONFIG **************
 //**************************************
-String clientId = "OpenGate";
-const char* mqtt_server = "appdinamico3.com";
+String clientId = "arduino_did-";
+const char* mqtt_server = "psironi.dynamic-dns.net";
 const int mqtt_port = 1883;
-const char* mqtt_user = "psironi";
-const char* mqtt_pass = "Queiveephai6";
+const char* mqtt_user = "homeassistant";
+const char* mqtt_pass = "doh0aeShae5urooghahxaijeiv7zesh9viech4sie4opheaj9iebouhaixah4eez";
 const char* root_topic_subscribe = "control/devices/#";
 
 

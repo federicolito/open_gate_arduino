@@ -1,8 +1,8 @@
 /*
   Control porton automatico mediante app movil y mqtt
 */
-String ver = "1.14.2";
-bool debug = false;
+String ver = "1.14.3";
+bool debug = true;
 bool gateType = false; //cambiar para un porton
 
 #include <ESP8266WiFi.h>
